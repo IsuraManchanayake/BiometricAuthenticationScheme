@@ -28,11 +28,15 @@ public class BiometricAuthenticationScheme extends Application {
     public void start(Stage primaryStage) throws Exception {
         FXMLLoader loader = new FXMLLoader();
         Parent root = (Parent) loader.load(EyeDetectViewController.class.getResourceAsStream("EyeDetectView.fxml"));
-//        final CanvasTestController controller = (CanvasTestController)loader.getController();
         Scene scene = new Scene(root);
         primaryStage.setScene(scene);
-        primaryStage.setMaximized(true);
+        primaryStage.setWidth(1280);
+        primaryStage.setHeight(720);
+        primaryStage.setResizable(false);
         primaryStage.show();
+//        final EyeDetectViewController controller = (EyeDetectViewController)loader.getController();
+//        System.out.println(controller.pane.getPrefWidth());
+//        controller.pane.setPrefWidth(100);
     }
     
 }

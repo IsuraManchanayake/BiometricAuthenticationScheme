@@ -5,7 +5,9 @@
  */
 package biometricauthenticationscheme;
 
+import java.io.File;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.ResourceBundle;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -15,6 +17,8 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
@@ -23,6 +27,8 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.StrokeType;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextBoundsType;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 
 /**
  * FXML Controller class
@@ -34,42 +40,105 @@ public class EyeDetectViewController implements Initializable {
     /**
      * Initializes the controller class.
      */
-    Circle circle;
+    //private Circle circle;
+    private final HashMap<PointName, StackPane> circles = new HashMap<>();
 
     @FXML
     private Canvas canvas1;
-
     @FXML
-    private Pane pane;
+    public Pane pane;
+    @FXML
+    private ImageView userImageView;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        Group root = new Group();
+//        Group root = new Group();
 
         GraphicsContext gc = canvas1.getGraphicsContext2D();
-        circle = new Circle(50);
-        circle.relocate(300, 100);
+//        userImageView.fitWidthProperty().bind(pane.prefWidthProperty());
+//        pane.setPrefWidth(1100.0);
+
+        setImage("/img/3.jpeg");
+//        Image img = new Image("/img/leo.jpg");
+//        userImageView.setImage(img);
+//        userImageView.setFitWidth(960);
+//        userImageView.setLayoutX(100);
+//        userImageView.setLayoutY(100);
+//        userImageView.setFitHeight(960.0 * img.getHeight() / img.getWidth());
+
+//        StackPane st = createMarker(100, 100, "1");
+//        circles.put(PointName.PT_PUPIL, st);
+//        pane.getChildren().add(st);
+        for (int i = 0; i < PointName.values().length; i++) {
+            StackPane st = createMarker(10.0 + i * 60, 600.0, "" + i);
+            circles.put(PointName.values()[i], st);
+            pane.getChildren().add(st);
+        }
+
+//        for (PointName value : PointName.values()) {
+//            System.out.println(circles.get(value).getTranslateX() + ", " + circles.get(value).getTranslateY());
+//        }
+        if (userImageView == null) {
+            System.out.println("shit");
+        }
+
+    }
+
+    public void setImage(String imgPath) {
+        Image img = new Image(imgPath);
+        userImageView.setImage(img);
+        double pw = 962.0;
+        double ph = 690.0;
+        double ratio = img.getHeight() / img.getWidth();
+        double layoutx, layouty, fitwidth, fitheight;
+        if (ratio > ph / pw) {
+            fitheight = ph;
+            fitwidth = ph / ratio;
+            layoutx = pw / 2 - fitwidth / 2;
+            layouty = 0.0;
+        } else {
+            fitheight = pw * ratio;
+            fitwidth = pw;
+            layoutx = 0.0;
+            layouty = ph / 2 - fitheight / 2;
+        }
+        userImageView.setLayoutX(2 + layoutx);
+        userImageView.setLayoutY(layouty);
+        userImageView.setFitWidth(fitwidth);
+        userImageView.setFitHeight(fitheight);
+    }
+
+    private StackPane createMarker(double x, double y, String text) {
+        Circle circle = new Circle(12);
+        circle.setStroke(Color.FORESTGREEN);
+        circle.setStrokeWidth(2);
+        circle.setStrokeType(StrokeType.INSIDE);
+        circle.setFill(Color.rgb(240, 255, 255, 0.2));
+
+        Text t = new Text(text);
+        t.setBoundsType(TextBoundsType.VISUAL);
+        t.setStyle("-fx-font: 10 consolas; -fx-font-weight: bolder");
+
+        StackPane stack = new StackPane();
+        stack.getChildren().addAll(circle, t);
+        stack.setTranslateX(x);
+        stack.setTranslateY(y);
 
         MouseGestures mg = new MouseGestures();
-        
-        circle.setStroke(Color.FORESTGREEN);
-        circle.setStrokeWidth(10);
-        circle.setStrokeType(StrokeType.INSIDE);
-        circle.setFill(Color.AZURE);
-        Text text = new Text("42");
-        text.setBoundsType(TextBoundsType.VISUAL);
-        StackPane stack = new StackPane();
-        stack.getChildren().addAll(circle, text);
-        pane.getChildren().add(stack);
-
         mg.makeDraggable(stack);
-        //root.getChildren().addAll(canvas1, overlay);
-        //primaryStage.setScene(new Scene(root, 600, 600));
-        //primaryStage.show();   
-        if (canvas1 == null) {
-            System.out.println("shit");
-        } else {
-            System.out.println("ok");
+
+        return stack;
+    }
+
+    @FXML
+    public void browseBtnClicked() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("All images", "*.jpg", "*.png", "*.jpeg", "*.gif")
+        );
+        File file = fileChooser.showOpenDialog((Stage) pane.getScene().getWindow());
+        if (file != null) {
+            setImage("file:" + file.getPath());
         }
     }
 
@@ -110,8 +179,8 @@ public class EyeDetectViewController implements Initializable {
 
                 double newTranslateX = orgTranslateX + offsetX;
                 double newTranslateY = orgTranslateY + offsetY;
-
-                if (newTranslateX > 0 && newTranslateX < 500 && newTranslateY > 0 && newTranslateY < 500) {
+                if (true) {
+//                if (newTranslateX > 0 && newTranslateX < 500 && newTranslateY > 0 && newTranslateY < 500) {
                     if (t.getSource() instanceof Circle) {
                         Circle p = ((Circle) (t.getSource()));
                         p.setCenterX(newTranslateX);
