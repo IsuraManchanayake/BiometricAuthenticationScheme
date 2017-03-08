@@ -34,7 +34,6 @@ public class BiometricAuthenticationScheme extends Application {
         primaryStage.setHeight(720);
         primaryStage.setResizable(false);
         primaryStage.show();
-//        final EyeDetectViewController controller = (EyeDetectViewController)loader.getController();
 //        System.out.println(controller.pane.getPrefWidth());
 //        controller.pane.setPrefWidth(100);
     }
