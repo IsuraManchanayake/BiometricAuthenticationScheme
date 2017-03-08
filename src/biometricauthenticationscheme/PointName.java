@@ -21,6 +21,6 @@ public enum PointName {
     PT_EYE_UPPER_LINE_3,
     PT_EYE_LEFT_IRIS_CORNER,
     PT_EYE_RIGHT_IRIS_CORNER,
-    PT_NOSE_BRIDGE,
+    //PT_NOSE_BRIDGE,
     PT_NOSE_BOTTOM
 }
