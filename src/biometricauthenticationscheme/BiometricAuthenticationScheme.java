@@ -33,6 +33,7 @@ public class BiometricAuthenticationScheme extends Application {
         primaryStage.setWidth(1280);
         primaryStage.setHeight(720);
         primaryStage.setResizable(false);
+        primaryStage.setTitle("Home");
         primaryStage.show();
 //        System.out.println(controller.pane.getPrefWidth());
 //        controller.pane.setPrefWidth(100);
