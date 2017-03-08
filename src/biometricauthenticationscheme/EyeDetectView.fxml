@@ -8,19 +8,20 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane id="AnchorPane" prefHeight="571.0" prefWidth="759.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="biometricauthenticationscheme.EyeDetectViewController">
+<AnchorPane id="AnchorPane" fx:id="rootPane" prefHeight="571.0" prefWidth="759.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="biometricauthenticationscheme.EyeDetectViewController">
    <children>
       <BorderPane prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <right>
             <AnchorPane prefHeight="400.0" prefWidth="309.0" BorderPane.alignment="CENTER">
                <children>
-                  <ImageView fitHeight="400.0" fitWidth="311.0" layoutX="1.0" pickOnBounds="true" preserveRatio="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="1.241912841796875" AnchorPane.topAnchor="0.0">
+                  <ImageView fx:id="guideImageView" fitHeight="400.0" fitWidth="311.0" layoutX="1.0" pickOnBounds="true" preserveRatio="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="1.241912841796875" AnchorPane.topAnchor="0.0">
                      <image>
                         <Image url="file:/C:/Users/Isura%20Manchanayake/Documents/NetBeansProjects/BiometricAuthenticationScheme/src/img/leo.jpg" />
                      </image>
                   </ImageView>
-                  <Button layoutX="154.0" layoutY="525.0" mnemonicParsing="false" prefHeight="32.0" prefWidth="138.0" text="Authenticate" AnchorPane.bottomAnchor="14.0" />
+                  <Button layoutX="154.0" layoutY="525.0" mnemonicParsing="false" onMouseClicked="#authenticateBtnClicked" prefHeight="32.0" prefWidth="138.0" text="Authenticate" AnchorPane.bottomAnchor="14.0" />
                   <Button layoutX="154.0" layoutY="484.0" mnemonicParsing="false" onMouseClicked="#browseBtnClicked" prefHeight="32.0" prefWidth="138.0" text="Browse Image" AnchorPane.bottomAnchor="55.0" />
+                  <Button fx:id="btnSignUp" layoutX="154.0" layoutY="444.0" mnemonicParsing="false" onMouseClicked="#signUpBtnClicked" prefHeight="32.0" prefWidth="138.0" text="Sign Up" AnchorPane.bottomAnchor="99.0" />
                </children>
             </AnchorPane>
          </right>

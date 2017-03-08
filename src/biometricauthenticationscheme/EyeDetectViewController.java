@@ -5,21 +5,35 @@
  */
 package biometricauthenticationscheme;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Bounds;
-import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -41,47 +55,38 @@ public class EyeDetectViewController implements Initializable {
      * Initializes the controller class.
      */
     //private Circle circle;
-    private final HashMap<PointName, StackPane> circles = new HashMap<>();
+    private final HashMap<PointName, Marker> markers = new HashMap<>();
 
     @FXML
     private Canvas canvas1;
     @FXML
-    public Pane pane;
+    private Pane pane;
     @FXML
     private ImageView userImageView;
+    @FXML
+    private ImageView guideImageView;
+    @FXML
+    private Button btnSignUp;
+    @FXML
+    private AnchorPane rootPane;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 //        Group root = new Group();
-
+        btnSignUp.setVisible(false);
         GraphicsContext gc = canvas1.getGraphicsContext2D();
 //        userImageView.fitWidthProperty().bind(pane.prefWidthProperty());
 //        pane.setPrefWidth(1100.0);
 
-        setImage("/img/3.jpeg");
-//        Image img = new Image("/img/leo.jpg");
-//        userImageView.setImage(img);
-//        userImageView.setFitWidth(960);
-//        userImageView.setLayoutX(100);
-//        userImageView.setLayoutY(100);
-//        userImageView.setFitHeight(960.0 * img.getHeight() / img.getWidth());
+        guideImageView.setImage(new Image("/img/GUIDE_PT_PUPIL.png"));
 
-//        StackPane st = createMarker(100, 100, "1");
-//        circles.put(PointName.PT_PUPIL, st);
-//        pane.getChildren().add(st);
+//        setImage("/img/3.jpeg");
+
         for (int i = 0; i < PointName.values().length; i++) {
-            StackPane st = createMarker(10.0 + i * 60, 600.0, "" + i);
-            circles.put(PointName.values()[i], st);
+            Marker st = createMarker(10.0 + i * 60, 600.0, "" + i, PointName.values()[i]);
+            markers.put(PointName.values()[i], st);
             pane.getChildren().add(st);
         }
-
-//        for (PointName value : PointName.values()) {
-//            System.out.println(circles.get(value).getTranslateX() + ", " + circles.get(value).getTranslateY());
-//        }
-        if (userImageView == null) {
-            System.out.println("shit");
-        }
-
     }
 
     public void setImage(String imgPath) {
@@ -108,8 +113,8 @@ public class EyeDetectViewController implements Initializable {
         userImageView.setFitHeight(fitheight);
     }
 
-    private StackPane createMarker(double x, double y, String text) {
-        Circle circle = new Circle(12);
+    private Marker createMarker(double x, double y, String text, PointName pointName) {
+        Circle circle = new Circle(9);
         circle.setStroke(Color.FORESTGREEN);
         circle.setStrokeWidth(2);
         circle.setStrokeType(StrokeType.INSIDE);
@@ -117,17 +122,27 @@ public class EyeDetectViewController implements Initializable {
 
         Text t = new Text(text);
         t.setBoundsType(TextBoundsType.VISUAL);
-        t.setStyle("-fx-font: 10 consolas; -fx-font-weight: bolder");
+        t.setStyle("-fx-font: 8 consolas; -fx-font-weight: bolder");
 
-        StackPane stack = new StackPane();
-        stack.getChildren().addAll(circle, t);
-        stack.setTranslateX(x);
-        stack.setTranslateY(y);
-
+        Marker marker = new Marker();
+        marker.getChildren().addAll(circle, t);
+        marker.setTranslateX(x);
+        marker.setTranslateY(y);
+        marker.pointName = pointName;
+        circle.styleProperty().bind(
+                Bindings
+                .when(marker.hoverProperty())
+                .then(
+                        new SimpleStringProperty("-fx-fill: rgb(240, 255, 255, 0.5)")
+                )
+                .otherwise(
+                        new SimpleStringProperty("-fx-fill: rgb(240, 255, 255, 0.2)")
+                )
+        );
         MouseGestures mg = new MouseGestures();
-        mg.makeDraggable(stack);
+        mg.makeDraggable(marker);
 
-        return stack;
+        return marker;
     }
 
     @FXML
@@ -142,7 +157,61 @@ public class EyeDetectViewController implements Initializable {
         }
     }
 
-    public static class MouseGestures {
+    @FXML
+    void authenticateBtnClicked() {
+
+        FaceBiometric faceBiometric = new FaceBiometric();
+        for (PointName nameKey : PointName.values()) {
+            Marker marker = markers.get(nameKey);
+            Bounds b = marker.localToScene(marker.getBoundsInLocal());
+            double cx = (b.getMinX() + b.getMaxX()) / 2;
+            double cy = (b.getMinY() + b.getMaxY()) / 2;
+            faceBiometric.getMarkedPoints().put(nameKey, new PointXY(cx, cy));
+        }
+
+        PointXY ptOrigin = new PointXY(faceBiometric.getMarkedPoints().get(PointName.PT_PUPIL));
+        for (PointName nameKey : PointName.values()) {
+            faceBiometric.getMarkedPoints().get(nameKey).setRelativeXY(ptOrigin);
+        }
+
+        try (Writer writer = new BufferedWriter(new FileWriter(new File("src/data/data").getAbsoluteFile(), true))) {
+
+            for (PointName nameKey : PointName.values()) {
+//                writer.write(faceBiometric.getMarkedPoints().get(nameKey) + "\n");
+            }
+
+        } catch (Exception ex) {
+            Logger.getLogger(EyeDetectViewController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        String name = faceBiometric.authenticate();
+        if (name == null) {
+            Alert alert = new Alert(AlertType.ERROR);
+            alert.setTitle("Login Failed");
+            alert.setHeaderText("");
+            alert.setContentText("You are not authenticated. Please try again.");
+            alert.show();
+//            alert.showAndWait().ifPresent(rs -> {
+//                if (rs == ButtonType.OK) {
+//                    System.out.println("Pressed OK.");
+//                }
+//            });
+        } else {
+            Alert alert = new Alert(AlertType.INFORMATION);
+            alert.setTitle("Login Successfull");
+            alert.setHeaderText("");
+            alert.setContentText("Hello " + name + ". You are authenticated.");
+            alert.show();
+            btnSignUp.setVisible(true);
+//            alert.showAndWait().ifPresent(rs -> {
+//                if (rs == ButtonType.OK) {
+//                    System.out.println("Pressed OK.");
+//                }
+//            });
+        }
+    }
+
+    public class MouseGestures {
 
         double orgSceneX, orgSceneY;
         double orgTranslateX, orgTranslateY;
@@ -162,6 +231,14 @@ public class EyeDetectViewController implements Initializable {
                     Circle p = ((Circle) (t.getSource()));
                     orgTranslateX = p.getCenterX();
                     orgTranslateY = p.getCenterY();
+                } else if (t.getSource() instanceof Marker) {
+                    Marker p = (Marker) (t.getSource());
+                    orgTranslateX = p.getTranslateX();
+                    orgTranslateY = p.getTranslateY();
+
+                    Image img = new Image("/img/GUIDE_" + p.pointName.name() + ".png");
+                    guideImageView.setImage(img);
+
                 } else {
                     Node p = ((Node) (t.getSource()));
                     orgTranslateX = p.getTranslateX();
@@ -186,7 +263,14 @@ public class EyeDetectViewController implements Initializable {
                         p.setCenterX(newTranslateX);
                         p.setCenterY(newTranslateY);
                         Bounds b = p.localToScene(p.getBoundsInLocal());
-//                    System.out.println(b.getMinX() + " " + b.getMinY());
+                    } else if (t.getSource() instanceof Marker) {
+                        Marker p = (Marker) (t.getSource());
+                        p.setTranslateX(newTranslateX);
+                        p.setTranslateY(newTranslateY);
+
+//                        Image img = new Image("/img/GUIDE_" + p.pointName.name() + ".png");
+//                        guideImageView.setImage(img);
+
                     } else {
                         Node p = ((Node) (t.getSource()));
                         p.setTranslateX(newTranslateX);
@@ -195,6 +279,29 @@ public class EyeDetectViewController implements Initializable {
                 }
             }
         };
+    }
+
+    @FXML
+    private void signUpBtnClicked() {
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("EyeDetectSignUp.fxml"));
+            Parent root1 = (Parent) fxmlLoader.load();
+            Stage stage = new Stage();
+            stage.setTitle("Sign Up");
+            stage.setWidth(1280);
+            stage.setHeight(720);
+            stage.setResizable(false);
+            stage.setScene(new Scene(root1));
+            stage.show();
+            ((Stage) rootPane.getScene().getWindow()).close();
+        } catch (IOException ex) {
+            Logger.getLogger(EyeDetectViewController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    private class Marker extends StackPane {
+
+        PointName pointName;
     }
 
 }
