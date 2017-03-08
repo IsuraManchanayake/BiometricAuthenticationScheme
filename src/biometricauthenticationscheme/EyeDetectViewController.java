@@ -174,16 +174,6 @@ public class EyeDetectViewController implements Initializable {
             faceBiometric.getMarkedPoints().get(nameKey).setRelativeXY(ptOrigin);
         }
 
-        try (Writer writer = new BufferedWriter(new FileWriter(new File("src/data/data").getAbsoluteFile(), true))) {
-
-            for (PointName nameKey : PointName.values()) {
-//                writer.write(faceBiometric.getMarkedPoints().get(nameKey) + "\n");
-            }
-
-        } catch (Exception ex) {
-            Logger.getLogger(EyeDetectViewController.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
         String name = faceBiometric.authenticate();
         if (name == null) {
             Alert alert = new Alert(AlertType.ERROR);
