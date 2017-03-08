@@ -181,7 +181,7 @@ public class EyeDetectSignUpController implements Initializable {
             faceBiometric.getMarkedPoints().get(nameKey).setRelativeXY(ptOrigin);
         }
 
-        try (Writer writer = new BufferedWriter(new FileWriter(new File("src/data/data").getAbsoluteFile(), true))) {
+        try (Writer writer = new BufferedWriter(new FileWriter(new File("data").getAbsoluteFile(), true))) {
             writer.write(txtName.getText() + "\n");
             for (PointName nameKey : PointName.values()) {
                 writer.write(faceBiometric.getMarkedPoints().get(nameKey) + "\n");

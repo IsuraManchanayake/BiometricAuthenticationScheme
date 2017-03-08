@@ -20,7 +20,7 @@ public class PointXY {
         this.x = x;
         this.y = y;
     }
-    
+
     public PointXY(PointXY pt) {
         this.x = pt.x;
         this.y = pt.y;
@@ -41,12 +41,12 @@ public class PointXY {
         x -= origin.x;
         y -= origin.y;
     }
-    
+
     public double distance(PointXY point) {
-        return sqrt((this.x - point.x) * (this.x - point.x) 
+        return sqrt((this.x - point.x) * (this.x - point.x)
                 + (this.y - point.y) * (this.y - point.y));
     }
-    
+
     public void scale(double ratio) {
         this.x *= ratio;
         this.y *= ratio;
