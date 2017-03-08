@@ -37,7 +37,6 @@ public class FaceBiometric implements Biometric {
         System.out.println(bestDistanceSum);
         try {
             Scanner fileScanner = new Scanner(new File("data"));
-//            Scanner fileScanner = new Scanner(getClass().getResourceAsStream("/data/data"));
 
             while (true) {
                 boolean ok = true;
