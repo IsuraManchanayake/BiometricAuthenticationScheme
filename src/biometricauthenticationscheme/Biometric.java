@@ -10,6 +10,5 @@ package biometricauthenticationscheme;
  * @author Isura Manchanayake
  */
 public interface Biometric {
-    public void scale();
-    public boolean authenticate();
+    public String authenticate();
 }
