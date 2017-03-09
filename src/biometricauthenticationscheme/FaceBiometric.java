@@ -6,6 +6,7 @@
 package biometricauthenticationscheme;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import static java.lang.Math.abs;
 import java.util.HashMap;
@@ -20,6 +21,7 @@ import java.util.logging.Logger;
 public class FaceBiometric implements Biometric {
 
     private final HashMap<PointName, PointXY> markedPoints;
+    private final Encryptor encryptor = new Encryptor();
 
     public FaceBiometric() {
         markedPoints = new HashMap<>();
@@ -36,19 +38,27 @@ public class FaceBiometric implements Biometric {
         double bestDistanceSum = Double.MAX_VALUE;
         System.out.println(bestDistanceSum);
         try {
-            Scanner fileScanner = new Scanner(new File("data"));
+            File file = new File("encdata");
+            byte[] encrypteddata;
+            try (FileInputStream fis = new FileInputStream(file)) {
+                encrypteddata = new byte[(int) file.length()];
+                fis.read(encrypteddata);
+            }
+
+            String str = new String(encrypteddata, "UTF-8");
+            Scanner stringScanner = new Scanner(encryptor.decrypt(str));
 
             while (true) {
                 boolean ok = true;
                 try {
-                    String name = fileScanner.next();
+                    String name = stringScanner.next();
                     System.out.println(name);
 //                    System.out.println(name + " ds");
                     HashMap<PointName, PointXY> pointData = new HashMap<>();
 
                     for (PointName pointName : PointName.values()) {
-                        double x = fileScanner.nextDouble();
-                        double y = fileScanner.nextDouble();
+                        double x = stringScanner.nextDouble();
+                        double y = stringScanner.nextDouble();
                         pointData.put(pointName, new PointXY(x, y));
                         System.out.println(pointName.name() + " " + x + " " + y);
                         System.out.println(pointName.name() + " " + markedPoints.get(pointName).x + " " + markedPoints.get(pointName).y);

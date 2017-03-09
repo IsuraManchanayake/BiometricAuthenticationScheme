@@ -55,6 +55,7 @@ public class EyeDetectSignUpController implements Initializable {
      */
     //private Circle circle;
     private final HashMap<PointName, Marker> markers = new HashMap<>();
+    private final Encryptor encryptor = new Encryptor();
 
     @FXML
     private Canvas canvas1;
@@ -180,12 +181,18 @@ public class EyeDetectSignUpController implements Initializable {
         for (PointName nameKey : PointName.values()) {
             faceBiometric.getMarkedPoints().get(nameKey).setRelativeXY(ptOrigin);
         }
-
-        try (Writer writer = new BufferedWriter(new FileWriter(new File("data").getAbsoluteFile(), true))) {
-            writer.write(txtName.getText() + "\n");
+        
+        StringBuilder sb = new StringBuilder();
+        try (Writer writer = new BufferedWriter(new FileWriter(new File("encdata").getAbsoluteFile(), true))) {
+//            writer.write(txtName.getText() + "\n");
+//            for (PointName nameKey : PointName.values()) {
+//                writer.write(faceBiometric.getMarkedPoints().get(nameKey) + "\n");
+//            }
+            sb.append(txtName.getText()).append("\n");
             for (PointName nameKey : PointName.values()) {
-                writer.write(faceBiometric.getMarkedPoints().get(nameKey) + "\n");
-            }
+                sb.append(faceBiometric.getMarkedPoints().get(nameKey)).append("\n");
+            }        
+            writer.write(encryptor.decrypt(sb.toString()));
 
         } catch (Exception ex) {
             Alert alert = new Alert(AlertType.ERROR);
