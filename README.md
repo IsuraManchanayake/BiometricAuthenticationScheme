@@ -9,7 +9,8 @@ This is an assignment project for Computer Security (CS3052 Assignment 1)
 - [Usage](#Usage)
 	- [Log In](#log-in)
 	- [Sign Up](#sign-up)
-
+- [Testing](#testing)
+- [Features](#features)
 
 ##Install
 
@@ -39,3 +40,12 @@ If authenticated, The **Sign Up** button will appear.
 <img src="img/sections-signup.png">
 
 The sections are same as log in. Drag and drop the markers with name as the guide provided and sign up.
+
+###Testing
+
+Use images in ```/src/testimg/``` to test.
+
+###Features
+
+Encrypted user information is stored in ```encdata``` the file. XOR encryption with 
+```key="thekey"``` has been used.
